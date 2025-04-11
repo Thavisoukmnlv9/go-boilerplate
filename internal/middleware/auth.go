@@ -1,33 +1,33 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/Thavisoukmnlv9/go-boilerplate/internal/auth"
 	"github.com/gofiber/fiber/v2"
 )
 
 func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// Retrieve the Authorization header from Fiber's context.
-		raw := c.Get("Authorization")
-		if raw == "" {
+		rawToken := c.Get("Authorization")
+		token := extractToken(rawToken)
+		if token == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing token"})
 		}
 
-		// Create a minimal HTTP request and set the Authorization header.
-		req, err := http.NewRequest("GET", "/", nil)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal server error"})
-		}
-		req.Header.Set("Authorization", raw)
-
-		// Call Authenticate with only the context and the constructed HTTP request.
-		_, err = auth.Strategy.Authenticate(c.Context(), req)
+		userID, role, err := auth.ValidateTokenAndExtractRole(token)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
 		}
 
+		c.Locals("userID", userID)
+		c.Locals("userRole", role) // Store role in context
 		return c.Next()
 	}
+}
+
+func extractToken(header string) string {
+	// Support "Bearer <token>"
+	if len(header) > 7 && header[:7] == "Bearer " {
+		return header[7:]
+	}
+	return header
 }

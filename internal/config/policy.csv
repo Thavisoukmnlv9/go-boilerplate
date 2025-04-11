@@ -1,0 +1,3 @@
+admin, /admin/*, GET
+user, /user/*, GET
+admin, /user/*, POST
