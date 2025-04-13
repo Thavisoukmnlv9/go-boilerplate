@@ -15,7 +15,7 @@ func SetupRoutes(app *fiber.App, enforcer *casbin.Enforcer, authHandler *handler
 	app.Post("/refresh", authHandler.RefreshToken)
 
 	// Authenticated and Authorized Routes
-	protected := app.Group("/api", middleware.AuthMiddleware(), middleware.CasbinMiddleware(enforcer))
+	protected := app.Group("", middleware.AuthMiddleware(), middleware.CasbinMiddleware(enforcer))
 
 	protected.Get("/admin", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "Welcome Admin"})

@@ -1,3 +1,8 @@
-admin, /admin/*, GET
-user, /user/*, GET
-admin, /user/*, POST
+p,admin,/admin,GET
+p,admin,/admin,POST
+p,admin,/user,GET
+p,admin,/user,POST
+p,admin,/user/*,GET
+p,admin,/user/*,DELETE
+p,admin,/user/*,EDIT
+p,user,/user,GET

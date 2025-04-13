@@ -7,19 +7,20 @@ import (
 
 func AuthMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+
 		rawToken := c.Get("Authorization")
 		token := extractToken(rawToken)
 		if token == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing token"})
 		}
 
-		userID, role, err := auth.ValidateTokenAndExtractRole(token)
+		userID, userRole, err := auth.ValidateTokenAndExtractRole(token)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
 		}
-
+		println("Extracted userRole:", userRole)
 		c.Locals("userID", userID)
-		c.Locals("userRole", role) // Store role in context
+		c.Locals("userRole", userRole)
 		return c.Next()
 	}
 }

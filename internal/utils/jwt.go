@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Thavisoukmnlv9/go-boilerplate/internal/config"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -17,7 +18,9 @@ type Claims struct {
 }
 
 // GenerateAccessToken creates a JWT with a short expiration (15 minutes).
+// Instead of using a global jwtKey, do:
 func GenerateAccessToken(userID, role string) (string, error) {
+	secret := config.LoadConfig().JWTSecret
 	expirationTime := time.Now().Add(15 * time.Minute)
 	claims := &Claims{
 		UserID: userID,
@@ -27,7 +30,7 @@ func GenerateAccessToken(userID, role string) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	return token.SignedString([]byte(secret))
 }
 
 // GenerateRefreshToken creates a JWT with a longer expiration (7 days).
